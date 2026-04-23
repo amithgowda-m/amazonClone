@@ -7,19 +7,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/amazon_clone')
+  .then(() => console.log('MongoDB Connected...'))
+  .catch(err => console.log(err));
+
 app.get('/', (req, res) => {
   res.send('Amazon Clone API is running...');
 });
 
 // Import your routes here (commented out for now, you will build these)
-// const authRoutes = require('./routes/auth');
-// const productRoutes = require('./routes/products');
-// const cartRoutes = require('./routes/cart');
+const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/products');
+const cartRoutes = require('./routes/cart');
 
 // Use routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/products', productRoutes);
-// app.use('/api/cart', cartRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 const PORT = process.env.PORT || 5000;
 
