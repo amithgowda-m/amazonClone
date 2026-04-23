@@ -7,38 +7,58 @@ const User = require('../models/User');
 // POST /signup
 router.post('/signup', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        console.log("Signup requested with body:", req.body);
+        const { name, email, password } = req.body || {};
+
+        // Validate required fields
+        if (!name || !email || !password) {
+            console.log("Missing fields");
+            return res.status(400).json({ message: 'Please provide name, email, and password' });
+        }
 
         // Check if user already exists
+        console.log("Checking if user exists");
         let user = await User.findOne({ email });
         if (user) {
+            console.log("User already exists");
             return res.status(400).json({ message: 'User already exists' });
         }
 
         // Hash the password for security
+        console.log("Hashing password");
         const salt = await bcrypt.genSalt(10);
+        console.log("Salt generated:", salt);
         const hashedPassword = await bcrypt.hash(password, salt);
+        console.log("Password hashed");
 
         // Create new user
+        console.log("Creating user");
         user = new User({
             name,
             email,
             password: hashedPassword
         });
 
+        console.log("Saving user");
         await user.save();
+        console.log("User saved successfully");
         res.status(201).json({ message: 'User registered successfully!' });
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: 'Server error during signup' });
+        require('fs').writeFileSync('d:/AmazonClone/backend/debug-error.log', error.stack || error.toString());
+        res.status(500).json({ message: 'Server error during signup', error: error.message });
     }
 });
 
 // POST /login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
+
+        // Validate required fields
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please provide email and password' });
+        }
 
         // Check if user exists
         let user = await User.findOne({ email });
