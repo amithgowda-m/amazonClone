@@ -2,71 +2,72 @@ const mongoose = require('mongoose');
 const Product = require('./models/Product');
 require('dotenv').config();
 
+// Completely stable Fakestore API items
 const INITIAL_PRODUCTS = [
   {
-    title: "Razer DeathAdder V2 Gaming Mouse",
+    title: "WD 2TB Elements Portable External Hard Drive",
     price: 5499,
-    image: "https://m.media-amazon.com/images/I/61bdB76eUCL._AC_SL1500_.jpg",
-    description: "Focus+ 20K DPI Optical Sensor. Auto-calibration across mouse mats and reduction of cursor shoot-off from lift-off.",
+    image: "https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg",
+    description: "USB 3.0 and USB 2.0 Compatibility. Fast data transfers. Improve PC Performance. High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7.",
     category: "Electronics"
   },
   {
-    title: "Apple MacBook Air M2 (2022)",
+    title: "Samsung 49-Inch CHG90 144Hz Monitor",
     price: 99900,
-    image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg",
-    description: "13.6-inch Liquid Retina Display, 8GB RAM, 256GB SSD, Backlit Keyboard, 1080p FaceTime HD Camera.",
+    image: "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SY817_.jpg",
+    description: "49 INCH SUPER ULTRAWIDE 32:9 CURVED GAMING MONITOR with dual 27 inch screen side by side.",
     category: "Computers"
   },
   {
-    title: "Sony WH-1000XM5 Wireless Headphones",
-    price: 29990,
-    image: "https://m.media-amazon.com/images/I/51aXvjBcqwL._AC_SL1000_.jpg",
-    description: "Industry Leading Noise Canceling with Auto Noise Canceling Optimizer. Crystal clear hands-free calling and Up to 30-hour battery life.",
+    title: "WD 4TB Gaming Drive Works with Playstation 4",
+    price: 9990,
+    image: "https://fakestoreapi.com/img/61mtL65D4cG._AC_SX679_.jpg",
+    description: "Expand your PS4 gaming experience, Play anywhere Fast and easy, setup Sleek design with high capacity, 3-year manufacturer's limited warranty",
     category: "Electronics"
   },
   {
-    title: "Samsung 49-Inch Odyssey G9 Gaming Monitor",
-    price: 119000,
-    image: "https://m.media-amazon.com/images/I/61SQz8S+fEL._AC_SL1000_.jpg",
-    description: "1000R Curved Screen, 240Hz, 1ms, FreeSync Premium Pro. Dual QHD resolution and QLED technology for stunning visuals.",
+    title: "Acer SB220Q bi 21.5 inches Full HD IPS Display",
+    price: 11000,
+    image: "https://fakestoreapi.com/img/81QpkIctqPL._AC_SX679_.jpg",
+    description: "21. 5 inches Full HD (1920 x 1080) widescreen IPS display And Radeon free Sync technology. No compatibility for VESA Mount Refresh Rate: 75Hz",
     category: "Computers"
   },
   {
-    title: "Kindle Paperwhite (8 GB)",
-    price: 13999,
-    image: "https://m.media-amazon.com/images/I/71TPda7cwNL._AC_SL1500_.jpg",
-    description: "Now with a 6.8\" display and thinner borders, adjustable warm light, up to 10 weeks of battery life, and 20% faster page turns.",
+    title: "Silicon Power 256GB SSD 3D NAND",
+    price: 3999,
+    image: "https://fakestoreapi.com/img/71kWymZ+c+L._AC_SX679_.jpg",
+    description: "3D NAND flash are applied to deliver high transfer speeds Remarkable transfer speeds that enable faster bootup and improved overall system performance.",
     category: "Electronics"
   },
   {
-    title: "Echo Dot (5th Gen, 2022 release)",
-    price: 4999,
-    image: "https://m.media-amazon.com/images/I/81lgHjUjS6L._AC_SL1500_.jpg",
-    description: "Our best sounding Echo Dot yet – Enjoy an improved audio experience compared to any previous Echo Dot with Alexa for clearer vocals.",
-    category: "Smart Home"
+    title: "SanDisk SSD PLUS 1TB Internal SSD",
+    price: 8999,
+    image: "https://fakestoreapi.com/img/61U7T1koQqL._AC_SX679_.jpg",
+    description: "Easy upgrade for faster boot up, shutdown, application load and response. Boosts burst write performance, making it ideal for typical PC workloads.",
+    category: "Computers"
   },
   {
-    title: "Bose SoundLink Flex Bluetooth Speaker",
-    price: 14900,
-    image: "https://m.media-amazon.com/images/I/51y-0BfGE4L._AC_SL1500_.jpg",
-    description: "State-of-the-art design – SoundLink Flex outdoor speaker is packed with exclusive technologies and a custom-engineered transducer.",
-    category: "Electronics"
+    title: "Fjallraven - Foldsack No. 1 Backpack",
+    price: 4900,
+    image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+    description: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+    category: "Fashion"
   },
   {
-    title: "Logitech MX Master 3S Advanced Mouse",
-    price: 9995,
-    image: "https://m.media-amazon.com/images/I/61vGQNUEsGL._AC_SL1500_.jpg",
-    description: "Auto-shift scrolling. MagSpeed Electromagnetic scrolling is precise enough to stop on a pixel and quick enough to scroll 1,000 lines a second.",
-    category: "Electronics"
+    title: "Mens Casual Premium Slim Fit T-Shirts ",
+    price: 995,
+    image: "https://fakestoreapi.com/img/71-3HjGNDMAC._SY800_.jpg",
+    description: "Slim-fitting style, contrast raglan sleeve, three-button henley placket, light weight & soft fabric for breathable and comfortable wearing.",
+    category: "Fashion"
   }
 ];
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/amazon_clone')
   .then(async () => {
     console.log('MongoDB Connected for Seed...');
-    await Product.deleteMany({}); // Clear existing ones to prevent duplicates
+    await Product.deleteMany({});
     await Product.insertMany(INITIAL_PRODUCTS);
-    console.log('Successfully Seeded 8 Products Database!');
+    console.log('Successfully Seeded 8 Guaranteed-Image Products!');
     process.exit();
   })
   .catch(err => {
