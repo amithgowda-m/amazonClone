@@ -3,13 +3,7 @@ const Product = require('./models/Product');
 require('dotenv').config();
 
 const INITIAL_PRODUCTS = [
-  {
-    title: "Razer DeathAdder V2 Gaming Mouse",
-    price: 5499,
-    image: "/products/razer.jpg",
-    description: "Focus+ 20K DPI Optical Sensor. Auto-calibration across mouse mats and reduction of cursor shoot-off from lift-off.",
-    category: "Electronics"
-  },
+  
   {
     title: "Apple MacBook Air M2 (2022)",
     price: 99900,
@@ -66,7 +60,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/amazon_clon
     console.log('MongoDB Connected for Seed...');
     await Product.deleteMany({});
     await Product.insertMany(INITIAL_PRODUCTS);
-    console.log('Successfully Seeded 8 Local-Image Products!');
+    console.log(`Successfully Seeded ${INITIAL_PRODUCTS.length} Local-Image Products!`);
     process.exit();
   })
   .catch(err => {
