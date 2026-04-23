@@ -1,32 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FiTrash2, FiMinus, FiPlus } from 'react-icons/fi';
 import axios from 'axios';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Initial mockup fallback
-  const DUMMY_CART = [
-    {
-      productId: {
-        _id: 'dummy1',
-        title: "Razer DeathAdder V2 Gaming Mouse",
-        price: 69.99,
-        image: "https://m.media-amazon.com/images/I/611ZzBqikPL._AC_SL1500_.jpg",
-      },
-      quantity: 1
-    },
-    {
-      productId: {
-        _id: 'dummy3',
-        title: "Sony WH-1000XM5 Wireless Headphones",
-        price: 348.00,
-        image: "https://m.media-amazon.com/images/I/61+btxcigvL._AC_SL1500_.jpg",
-      },
-      quantity: 2
-    }
-  ];
 
   useEffect(() => {
     fetchCart();
@@ -42,97 +19,86 @@ const Cart = () => {
 
     try {
       const response = await axios.get(`http://localhost:5000/api/cart?userId=${userId}`);
-      if (response.data && response.data.items && response.data.items.length > 0) {
+      if (response.data && response.data.items) {
         setCartItems(response.data.items);
-      } else {
-        setCartItems(DUMMY_CART); // Graceful fallback
       }
     } catch (error) {
-      console.log('Using local cart dummy');
-      setCartItems(DUMMY_CART);
+      console.log('Error fetching cart:', error);
     }
     setLoading(false);
   };
 
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity < 1) return;
-    
-    // Optimistic UI Update Fake for hackathon speed
-    setCartItems(cartItems.map(item => 
-      item.productId._id === productId 
-        ? { ...item, quantity: newQuantity } 
-        : item
-    ));
-
-    // Try backend
+    setCartItems(cartItems.map(item => item.productId._id === productId ? { ...item, quantity: newQuantity } : item));
     const userId = localStorage.getItem('userId');
     if(userId) {
-      axios.put('http://localhost:5000/api/cart', {
-        userId: userId,
-        productId,
-        quantity: newQuantity
-      }).catch(err => console.log('Backend sync failed, using UI state'));
+      axios.put('http://localhost:5000/api/cart', { userId, productId, quantity: newQuantity })
+      .catch(err => console.log('Backend sync failed'));
     }
   };
 
   const removeItem = (productId) => {
     setCartItems(cartItems.filter(item => item.productId._id !== productId));
-    
-    // Try backend
     const userId = localStorage.getItem('userId');
     if(userId) {
-      axios.delete('http://localhost:5000/api/cart', {
-        data: { userId: userId, productId }
-      }).catch(err => console.log('Backend sync failed, using UI state'));
+      axios.delete('http://localhost:5000/api/cart', { data: { userId, productId } })
+      .catch(err => console.log('Backend sync failed'));
     }
   };
 
   if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}><h2>Loading Cart...</h2></div>;
 
   const total = cartItems.reduce((sum, item) => sum + (item.productId.price * item.quantity), 0);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div>
-      <h1 className="page-title">Shopping Cart</h1>
-      
-      {!localStorage.getItem('userId') ? (
-        <div style={{textAlign: 'center', marginTop: '40px'}}>
-          <h2>You need to Sign In to view your actual cart!</h2>
-        </div>
-      ) : cartItems.length === 0 ? (
-        <div style={{textAlign: 'center', marginTop: '40px'}}>
-          <h2>Your cart is entirely empty!</h2>
-        </div>
-      ) : (
-        <div className="cart-container">
-          {cartItems.map((item, idx) => (
+    <div className="cart-page">
+      <div className="cart-list">
+        <h1>Shopping Cart</h1>
+        {!localStorage.getItem('userId') ? (
+          <div><h2>Please Sign In to view your cart.</h2></div>
+        ) : cartItems.length === 0 ? (
+          <div><h2>Your Amazon Cart is empty.</h2></div>
+        ) : (
+          cartItems.map((item, idx) => (
             <div className="cart-item" key={idx}>
-              <img src={item.productId.image} alt={item.productId.title} className="cart-item-image" />
-              
-              <div className="cart-item-details">
-                <h3 className="cart-item-title">{item.productId.title}</h3>
-                <div className="cart-item-price">${item.productId.price.toFixed(2)}</div>
+              <img src={item.productId.image} alt={item.productId.title} />
+              <div className="cart-item-info" style={{ flex: 1 }}>
+                <h3>{item.productId.title}</h3>
+                <div style={{color: '#007600', fontSize:'12px', margin: '5px 0'}}>In stock</div>
+                <div className="cart-actions">
+                  <select 
+                    value={item.quantity} 
+                    onChange={(e) => updateQuantity(item.productId._id, parseInt(e.target.value))}
+                    style={{padding: '5px 10px', borderRadius: '8px', background: '#F0F2F2', border: '1px solid #D5D9D9', cursor: 'pointer', boxShadow: '0 2px 5px rgba(15,17,17,.15)'}}
+                  >
+                    {[...Array(10).keys()].map(x => <option key={x+1} value={x+1}>Qty: {x+1}</option>)}
+                  </select>
+                  <span style={{color: '#ddd'}}>|</span>
+                  <span className="amz-card-link" style={{cursor: 'pointer'}} onClick={() => removeItem(item.productId._id)}>Delete</span>
+                </div>
               </div>
-              
-              <div className="cart-item-actions">
-                <button className="qty-btn" onClick={() => updateQuantity(item.productId._id, item.quantity - 1)}>
-                  <FiMinus />
-                </button>
-                <span className="cart-qty">{item.quantity}</span>
-                <button className="qty-btn" onClick={() => updateQuantity(item.productId._id, item.quantity + 1)}>
-                  <FiPlus />
-                </button>
-                
-                <button className="btn remove-btn btn-icon" onClick={() => removeItem(item.productId._id)} style={{marginLeft: '20px'}}>
-                  <FiTrash2 /> Remove
-                </button>
+              <div className="cart-item-price">
+                ₹{item.productId.price.toLocaleString('en-IN')}
               </div>
             </div>
-          ))}
-          
-          <div className="cart-summary">
-            Total Subtotal: <strong>${total.toFixed(2)}</strong>
+          ))
+        )}
+        {cartItems.length > 0 && (
+          <div style={{textAlign: 'right', fontSize: '18px', paddingTop: '10px'}}>
+            Subtotal ({totalItems} items): <span style={{fontWeight: 'bold'}}>₹{total.toLocaleString('en-IN')}</span>
           </div>
+        )}
+      </div>
+
+      {cartItems.length > 0 && (
+        <div className="cart-subtotal-box">
+          <div style={{fontSize: '18px', marginBottom: '20px'}}>
+            Subtotal ({totalItems} items): <br/>
+            <span style={{fontWeight: 'bold'}}>₹{total.toLocaleString('en-IN')}</span>
+          </div>
+          <button className="btn" style={{width: '100%', borderRadius: '8px', padding: '10px'}}>Proceed to Buy</button>
         </div>
       )}
     </div>

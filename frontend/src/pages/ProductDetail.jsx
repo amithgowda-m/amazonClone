@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiShoppingCart } from 'react-icons/fi';
 import axios from 'axios';
 
 const ProductDetail = () => {
@@ -9,24 +8,9 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // We are heavily relying on the actual backend if this was real,
-  // but for the WOW factor in case the user has no database yet:
-  const DUMMY_PRODUCTS = {
-    'dummy1': { _id: 'dummy1', title: "Razer DeathAdder V2 Gaming Mouse", price: 69.99, image: "https://m.media-amazon.com/images/I/611ZzBqikPL._AC_SL1500_.jpg", description: "Focus+ 20K DPI Optical Sensor. Auto-calibration across mouse mats and reduction of cursor shoot-off from lift-off." },
-    'dummy2': { _id: 'dummy2', title: "Apple MacBook Air M2", price: 1199.00, image: "https://m.media-amazon.com/images/I/719C6bJv8jL._AC_SL1500_.jpg", description: "13.6-inch Liquid Retina Display, 8GB RAM, 256GB SSD, Backlit Keyboard, 1080p FaceTime HD Camera. Works seamlessly with iPhone." },
-    'dummy3': { _id: 'dummy3', title: "Sony WH-1000XM5 Wireless Headphones", price: 348.00, image: "https://m.media-amazon.com/images/I/61+btxcigvL._AC_SL1500_.jpg", description: "Industry Leading Noise Canceling with Auto Noise Canceling Optimizer. Crystal clear hands-free calling and Up to 30-hour battery life." },
-    'dummy4': { _id: 'dummy4', title: "Samsung 49-Inch Odyssey G9 Gaming Monitor", price: 1299.99, image: "https://m.media-amazon.com/images/I/61SQz8S+fEL._AC_SL1000_.jpg", description: "1000R Curved Screen, 240Hz, 1ms, FreeSync Premium Pro. Dual QHD resolution and QLED technology for stunning visuals." }
-  };
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        if (id.startsWith('dummy')) {
-          setProduct(DUMMY_PRODUCTS[id]);
-          setLoading(false);
-          return;
-        }
-
         const response = await axios.get(`http://localhost:5000/api/products/${id}`);
         setProduct(response.data);
         setLoading(false);
@@ -55,8 +39,8 @@ const ProductDetail = () => {
       });
       alert('Added to Cart!');
     } catch (error) {
-      console.log('Fake Added to cart!');
-      alert('Local Mode: Successfully Added to Cart!');
+      console.log('Error adding to cart');
+      alert('Error syncing to cart');
     }
     navigate('/cart');
   };
@@ -65,27 +49,37 @@ const ProductDetail = () => {
   if (!product) return <div style={{ textAlign: 'center', marginTop: '50px' }}><h2>Product Not Found</h2></div>;
 
   return (
-    <div>
-      <h1 className="page-title">Product Details</h1>
+    <div className="detail-page">
+      <div className="detail-img-sec">
+        <img src={product.image} alt={product.title} />
+      </div>
       
-      <div className="detail-container">
-        <div className="detail-image-box">
-          <img src={product.image} alt={product.title} className="detail-image" />
+      <div className="detail-info-sec">
+        <h1 className="detail-title">{product.title}</h1>
+        <div style={{color: '#007185', marginBottom: '15px'}}>{product.category} Brand</div>
+        <div className="detail-price">
+          <span style={{fontSize: '14px', position: 'relative', top: '-10px'}}>₹</span>
+          {product.price.toLocaleString('en-IN')}
         </div>
         
-        <div className="detail-info">
-          <h2 className="detail-title">{product.title}</h2>
-          <div className="detail-price">${product.price.toFixed(2)}</div>
-          
-          <div className="detail-desc">
-            <strong>About this item:</strong><br /><br />
-            {product.description}
-          </div>
-          
-          <button className="btn add-to-cart-btn btn-icon" onClick={addToCart}>
-            <FiShoppingCart size={22} /> Add to Cart
-          </button>
+        <div style={{borderTop: '1px solid #ccc', paddingTop: '15px', marginTop: '15px'}}>
+          <strong>About this item:</strong><br />
+          <ul style={{marginLeft: '20px', marginTop: '10px', color: '#0F1111'}}>
+            <li style={{marginBottom: '5px'}}>{product.description}</li>
+            <li style={{marginBottom: '5px'}}>Genuine product with warranty</li>
+            <li style={{marginBottom: '5px'}}>Easy 10-day return policy</li>
+          </ul>
         </div>
+      </div>
+
+      <div className="detail-buy-box">
+        <div style={{fontSize: '18px', color: '#B12704', fontWeight: 'bold'}}>₹{product.price.toLocaleString('en-IN')}</div>
+        <div style={{color: '#007185', margin: '15px 0'}}>FREE delivery</div>
+        <h3 style={{color: '#007600', fontSize:'18px', fontWeight:'normal'}}>In stock</h3>
+        
+        <button className="btn" onClick={addToCart}>
+          Add to Cart
+        </button>
       </div>
     </div>
   );
