@@ -1,10 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiMapPin, FiMenu } from 'react-icons/fi';
+import { FiShoppingCart, FiMapPin, FiMenu } from 'react-icons/fi';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Auth from './pages/Auth';
+import SearchBar from './components/SearchBar';
 
 function App() {
   const userName = localStorage.getItem('name');
@@ -30,11 +31,7 @@ function App() {
             <span>Update location</span>
           </div>
 
-          <div className="nav-search">
-            <select><option>All</option></select>
-            <input type="text" placeholder="Search Amazon.in" />
-            <button><FiSearch size={20} color="#333" /></button>
-          </div>
+          <SearchBar />
 
           <div className="nav-right">
             <div className="nav-action" style={{flexDirection: 'row', alignItems: 'center', gap: '5px', fontWeight: 'bold'}}>

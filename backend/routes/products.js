@@ -13,6 +13,32 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /products/search?q=keyword - Intelligent Search Algorithm
+router.get('/search', async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query) return res.status(200).json([]);
+
+        // Good Algorithmic Search: split by spaces and perform multi-regex matching
+        // so typing "steel shaker" matches "Stainless Steel Protein Shaker"
+        const terms = query.split(' ').map(term => `(?=.*${term})`).join('');
+        const regex = new RegExp(terms, 'i');
+
+        const products = await Product.find({
+            $or: [
+                { title: regex },
+                { description: regex },
+                { category: new RegExp(query, 'i') }
+            ]
+        }).limit(10); // Limit suggestions to top 10 for performance
+
+        res.status(200).json(products);
+    } catch (error) {
+        console.error("Error searching products:", error.message);
+        res.status(500).json({ message: 'Server error during search' });
+    }
+});
+
 // GET /products/:id - Return a single product by ID
 router.get('/:id', async (req, res) => {
     try {
