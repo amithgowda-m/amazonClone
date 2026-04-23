@@ -20,7 +20,9 @@ const Cart = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/cart?userId=${userId}`);
       if (response.data && response.data.items) {
-        setCartItems(response.data.items);
+        // Filter out any items whose productId became null (due to product being deleted from DB)
+        const validItems = response.data.items.filter(item => item.productId !== null);
+        setCartItems(validItems);
       }
     } catch (error) {
       console.log('Error fetching cart:', error);
