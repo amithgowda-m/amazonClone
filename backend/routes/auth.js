@@ -15,6 +15,10 @@ router.post('/signup', async (req, res) => {
             console.log("Missing fields");
             return res.status(400).json({ message: 'Please provide name, email, and password' });
         }
+        
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long to ensure security' });
+        }
 
         // Check if user already exists
         console.log("Checking if user exists");
