@@ -40,18 +40,23 @@ const ProductDetail = () => {
   }, [id]);
 
   const addToCart = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert("You need to Sign In before adding to your cart!");
+      navigate('/auth');
+      return;
+    }
+
     try {
-      // In a real app we'd have a logged in user. We simulate 'user123' for Hackathon flow.
       await axios.post('http://localhost:5000/api/cart', {
-        userId: 'hackathon_user_id', 
+        userId: userId, 
         productId: product._id,
         quantity: 1
       });
       alert('Added to Cart!');
     } catch (error) {
-      // Graceful fallback dummy
       console.log('Fake Added to cart!');
-      alert('Successfully Added to Cart (Local UI)!');
+      alert('Local Mode: Successfully Added to Cart!');
     }
     navigate('/cart');
   };

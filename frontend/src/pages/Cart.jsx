@@ -33,8 +33,15 @@ const Cart = () => {
   }, []);
 
   const fetchCart = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setCartItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.get('http://localhost:5000/api/cart?userId=hackathon_user_id');
+      const response = await axios.get(`http://localhost:5000/api/cart?userId=${userId}`);
       if (response.data && response.data.items && response.data.items.length > 0) {
         setCartItems(response.data.items);
       } else {
@@ -58,20 +65,26 @@ const Cart = () => {
     ));
 
     // Try backend
-    axios.put('http://localhost:5000/api/cart', {
-      userId: 'hackathon_user_id',
-      productId,
-      quantity: newQuantity
-    }).catch(err => console.log('Backend sync failed, using UI state'));
+    const userId = localStorage.getItem('userId');
+    if(userId) {
+      axios.put('http://localhost:5000/api/cart', {
+        userId: userId,
+        productId,
+        quantity: newQuantity
+      }).catch(err => console.log('Backend sync failed, using UI state'));
+    }
   };
 
   const removeItem = (productId) => {
     setCartItems(cartItems.filter(item => item.productId._id !== productId));
     
     // Try backend
-    axios.delete('http://localhost:5000/api/cart', {
-      data: { userId: 'hackathon_user_id', productId }
-    }).catch(err => console.log('Backend sync failed, using UI state'));
+    const userId = localStorage.getItem('userId');
+    if(userId) {
+      axios.delete('http://localhost:5000/api/cart', {
+        data: { userId: userId, productId }
+      }).catch(err => console.log('Backend sync failed, using UI state'));
+    }
   };
 
   if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}><h2>Loading Cart...</h2></div>;
@@ -82,7 +95,11 @@ const Cart = () => {
     <div>
       <h1 className="page-title">Shopping Cart</h1>
       
-      {cartItems.length === 0 ? (
+      {!localStorage.getItem('userId') ? (
+        <div style={{textAlign: 'center', marginTop: '40px'}}>
+          <h2>You need to Sign In to view your actual cart!</h2>
+        </div>
+      ) : cartItems.length === 0 ? (
         <div style={{textAlign: 'center', marginTop: '40px'}}>
           <h2>Your cart is entirely empty!</h2>
         </div>
